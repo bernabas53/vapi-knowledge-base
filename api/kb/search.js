@@ -1,5 +1,6 @@
 const { Pinecone } = require('@pinecone-database/pinecone');
 const OpenAI = require('openai');
+const crypto = require('crypto');
 
 // Initialize clients (reused across invocations)
 let pineconeClient;
@@ -46,7 +47,31 @@ module.exports = async (req, res) => {
     initializeClients();
 
     // Log incoming request
-    console.log('📥 Knowledge base request received');
+    console.log('📥 Knowledge base request received - VERSION 4.0');
+
+    // Verify signature if provided (according to Vapi docs)
+    const signature = req.headers['x-vapi-signature'] || req.headers['X-Vapi-Signature'];
+    const secret = process.env.VAPI_WEBHOOK_SECRET;
+    
+    if (signature && secret) {
+      // Vapi docs: signature is sha256 hash of JSON.stringify(req.body)
+      const bodyString = JSON.stringify(req.body);
+      const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(bodyString)
+        .digest('hex');
+      
+      const signatureValue = signature.replace(/^sha256=/, '');
+      
+      if (signatureValue !== expectedSignature) {
+        console.log('⚠️ Signature mismatch - but allowing request for now');
+        // Don't block - allow request to proceed
+      } else {
+        console.log('✅ Signature verified');
+      }
+    } else {
+      console.log('No signature provided - allowing request');
+    }
 
     const { message } = req.body;
 
@@ -101,4 +126,4 @@ module.exports = async (req, res) => {
     });
   }
 };
-// Force deployment - 1763454844
+// Version 4.0 - Tue Nov 18 11:34:45 EAT 2025
