@@ -9,13 +9,18 @@ let index;
 function initializeClients() {
   if (!pineconeClient) {
     pineconeClient = new Pinecone({
-      apiKey: process.env.PINECONE_API_KEY,
+      apiKey: process.env.PINECONE_API_KEY?.trim(),
     });
   }
   
   if (!openaiClient) {
+    // Trim API key to remove any newlines or whitespace that might cause HTTP header errors
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    if (!apiKey) {
+      console.error('OPENAI_API_KEY is not set or empty');
+    }
     openaiClient = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: apiKey,
     });
   }
   
