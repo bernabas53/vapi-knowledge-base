@@ -1,13 +1,11 @@
-const crypto = require('crypto');
 const { Pinecone } = require('@pinecone-database/pinecone');
 const OpenAI = require('openai');
 
-// Initialize clients (these will be reused across invocations)
+// Initialize clients (reused across invocations)
 let pineconeClient;
 let openaiClient;
 let index;
 
-// Initialize clients on first invocation
 function initializeClients() {
   if (!pineconeClient) {
     pineconeClient = new Pinecone({
@@ -27,9 +25,6 @@ function initializeClients() {
   }
 }
 
-/**
- * Extract the latest user message from the conversation
- */
 function getLatestUserMessage(message) {
   if (!message || !message.messages) {
     return '';
@@ -39,15 +34,10 @@ function getLatestUserMessage(message) {
   return userMessages[userMessages.length - 1]?.content || '';
 }
 
-/**
- * Vercel serverless function handler
- * Version 6.0 - FORCE FRESH DEPLOYMENT - All error fields removed
- * Deployed: $(date)
- */
+// Vercel serverless function handler
 module.exports = async (req, res) => {
   // Only allow POST requests
   if (req.method !== 'POST') {
-    // Vapi doesn't accept error field - return empty documents instead
     return res.status(200).json({ documents: [] });
   }
 
@@ -55,36 +45,13 @@ module.exports = async (req, res) => {
     // Initialize clients
     initializeClients();
 
-    // Log incoming request - FORCE FRESH DEPLOYMENT
-    console.log('📥 Knowledge base request received - VERSION 6.0 - FORCE DEPLOY');
-
-    // Verify signature if provided, but don't block requests
-    const webhookSecret = process.env.VAPI_WEBHOOK_SECRET;
-    const signature = req.headers['x-vapi-signature'] || req.headers['X-Vapi-Signature'];
-    
-    if (signature && webhookSecret) {
-      const bodyString = JSON.stringify(req.body);
-      const expectedSignature = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(bodyString)
-        .digest('hex');
-      
-      const signatureValue = signature.replace(/^sha256=/, '');
-      
-      if (signatureValue === expectedSignature) {
-        console.log('✅ Signature verified');
-      } else {
-        console.log('⚠️ Signature mismatch - but allowing request');
-      }
-    } else {
-      console.log('No signature provided - allowing request');
-    }
+    // Log incoming request
+    console.log('📥 Knowledge base request received');
 
     const { message } = req.body;
 
     // Validate request type
     if (!message || message.type !== 'knowledge-base-request') {
-      // Vapi doesn't accept error field - return empty documents instead
       console.log('Invalid request type, returning empty documents');
       return res.status(200).json({ documents: [] });
     }
@@ -93,6 +60,7 @@ module.exports = async (req, res) => {
     const query = getLatestUserMessage(message);
     
     if (!query) {
+      console.log('No query found, returning empty documents');
       return res.status(200).json({ documents: [] });
     }
 
@@ -118,7 +86,7 @@ module.exports = async (req, res) => {
       content: match.metadata?.content || match.metadata?.text || '',
       similarity: match.score || 0,
       uuid: match.id || undefined,
-    })).filter(doc => doc.content); // Filter out empty documents
+    })).filter(doc => doc.content);
 
     console.log(`Found ${documents.length} relevant documents`);
 
@@ -128,11 +96,8 @@ module.exports = async (req, res) => {
     console.error('Knowledge base search error:', error);
     
     // Vapi doesn't accept "error" field - return empty documents instead
-    // This allows the assistant to continue even if knowledge base fails
     return res.status(200).json({ 
       documents: []
     });
   }
 };
-// Version 4.0 - Tue Nov 18 11:34:45 EAT 2025
-// Force deploy - 1763456058
