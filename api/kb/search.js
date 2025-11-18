@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
     initializeClients();
 
     // Log incoming request
-    console.log('📥 Knowledge base request received');
+    console.log('📥 Knowledge base request received - Latest version');
 
     const { message } = req.body;
 
