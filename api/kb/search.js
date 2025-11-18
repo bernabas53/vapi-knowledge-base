@@ -1,13 +1,11 @@
-const crypto = require('crypto');
 const { Pinecone } = require('@pinecone-database/pinecone');
 const OpenAI = require('openai');
 
-// Initialize clients (these will be reused across invocations)
+// Initialize clients (reused across invocations)
 let pineconeClient;
 let openaiClient;
 let index;
 
-// Initialize clients on first invocation
 function initializeClients() {
   if (!pineconeClient) {
     pineconeClient = new Pinecone({
@@ -27,9 +25,6 @@ function initializeClients() {
   }
 }
 
-/**
- * Extract the latest user message from the conversation
- */
 function getLatestUserMessage(message) {
   if (!message || !message.messages) {
     return '';
@@ -39,45 +34,7 @@ function getLatestUserMessage(message) {
   return userMessages[userMessages.length - 1]?.content || '';
 }
 
-/**
- * Verify webhook signature for security
- */
-function verifySignature(body, signature, secret) {
-  if (!secret) {
-    return true; // Skip verification if no secret is configured
-  }
-
-  if (!signature) {
-    return true; // Allow if no signature (for testing)
-  }
-
-  const bodyString = typeof body === 'string' ? body : JSON.stringify(body);
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(bodyString)
-    .digest('hex');
-
-  // Check both with and without sha256= prefix
-  const signatureWithoutPrefix = signature.replace(/^sha256=/, '');
-  const expectedWithoutPrefix = expectedSignature;
-  
-  const matches = signature === `sha256=${expectedSignature}` || 
-                  signatureWithoutPrefix === expectedWithoutPrefix ||
-                  signature === expectedSignature;
-  
-  console.log('Signature comparison:', {
-    received: signature,
-    expected: `sha256=${expectedSignature}`,
-    matches
-  });
-  
-  return matches;
-}
-
-/**
- * Vercel serverless function handler
- * Version: 3.0 - Completely removed signature verification
- */
+// Vercel serverless function handler
 module.exports = async (req, res) => {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -88,27 +45,14 @@ module.exports = async (req, res) => {
     // Initialize clients
     initializeClients();
 
-    // Get raw body for signature verification (Vercel provides it as parsed JSON)
-    // We'll verify signature if provided, but allow requests without it for now
-    const webhookSecret = process.env.VAPI_WEBHOOK_SECRET;
-    const signature = req.headers['x-vapi-signature'] || req.headers['X-Vapi-Signature'];
-    
-    // Log for debugging
-    console.log('📥 Knowledge base request received:', {
-      method: req.method,
-      hasSignature: !!signature,
-      hasSecret: !!webhookSecret
-    });
-    
-    // Note: Signature verification with raw body in Vercel requires different handling
-    // For now, we'll process requests - signature verification can be added later
-    // if needed for security
+    // Log incoming request
+    console.log('📥 Knowledge base request received');
 
     const { message } = req.body;
 
     // Validate request type
     if (!message || message.type !== 'knowledge-base-request') {
-      // Vapi doesn't accept "error" field - return empty documents instead
+      console.log('Invalid request type, returning empty documents');
       return res.status(200).json({ documents: [] });
     }
 
@@ -116,7 +60,8 @@ module.exports = async (req, res) => {
     const query = getLatestUserMessage(message);
     
     if (!query) {
-      return res.json({ documents: [] });
+      console.log('No query found, returning empty documents');
+      return res.status(200).json({ documents: [] });
     }
 
     console.log(`Searching for: "${query}"`);
@@ -141,7 +86,7 @@ module.exports = async (req, res) => {
       content: match.metadata?.content || match.metadata?.text || '',
       similarity: match.score || 0,
       uuid: match.id || undefined,
-    })).filter(doc => doc.content); // Filter out empty documents
+    })).filter(doc => doc.content);
 
     console.log(`Found ${documents.length} relevant documents`);
 
@@ -150,12 +95,10 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.error('Knowledge base search error:', error);
     
-    // Vapi doesn't accept "error" field in response - return empty documents instead
-    // This allows the assistant to continue even if knowledge base fails
+    // Vapi doesn't accept "error" field - return empty documents instead
     return res.status(200).json({ 
       documents: []
     });
   }
 };
-
-// Force fresh deployment - Tue Nov 18 11:30:19 EAT 2025
+// Force deployment - 1763454844

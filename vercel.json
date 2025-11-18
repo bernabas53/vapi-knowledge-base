@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "functions": {
+    "api/kb/search.js": {
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/kb/search",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
+
