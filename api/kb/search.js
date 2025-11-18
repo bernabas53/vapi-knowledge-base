@@ -47,6 +47,7 @@ module.exports = async (req, res) => {
 
     // Log incoming request
     console.log('📥 Knowledge base request received - Latest version');
+    console.log(`Using Pinecone index: ${process.env.PINECONE_INDEX_NAME || 'default'}`);
 
     const { message } = req.body;
 
