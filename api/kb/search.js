@@ -76,11 +76,12 @@ function verifySignature(body, signature, secret) {
 
 /**
  * Vercel serverless function handler
+ * Version: 3.0 - Completely removed signature verification
  */
 module.exports = async (req, res) => {
   // Only allow POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(200).json({ documents: [] });
   }
 
   try {
@@ -157,3 +158,4 @@ module.exports = async (req, res) => {
   }
 };
 
+// Force fresh deployment - Tue Nov 18 11:30:19 EAT 2025
