@@ -41,7 +41,8 @@ function getLatestUserMessage(message) {
 
 /**
  * Vercel serverless function handler
- * Version 5.0 - Removed ALL error fields (Vapi rejects them)
+ * Version 6.0 - FORCE FRESH DEPLOYMENT - All error fields removed
+ * Deployed: $(date)
  */
 module.exports = async (req, res) => {
   // Only allow POST requests
@@ -134,3 +135,4 @@ module.exports = async (req, res) => {
   }
 };
 // Version 4.0 - Tue Nov 18 11:34:45 EAT 2025
+// Force deploy - 1763456058
