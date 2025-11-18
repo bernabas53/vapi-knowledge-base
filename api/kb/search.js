@@ -81,8 +81,11 @@ module.exports = async (req, res) => {
     }
 
     console.log('Calling OpenAI embeddings API...');
+    // Trim model name to remove any whitespace/newlines
+    const modelName = (process.env.EMBEDDING_MODEL || 'text-embedding-ada-002').trim();
+    console.log(`Using model: "${modelName}"`);
     const embeddingResponse = await openaiClient.embeddings.create({
-      model: process.env.EMBEDDING_MODEL || 'text-embedding-ada-002',
+      model: modelName,
       input: query,
     });
     console.log('OpenAI embeddings API call successful');
