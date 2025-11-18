@@ -48,6 +48,8 @@ module.exports = async (req, res) => {
     // Log incoming request
     console.log('📥 Knowledge base request received - Latest version');
     console.log(`Using Pinecone index: ${process.env.PINECONE_INDEX_NAME || 'default'}`);
+    console.log(`OpenAI API key set: ${process.env.OPENAI_API_KEY ? 'Yes' : 'No'}`);
+    console.log(`Embedding model: ${process.env.EMBEDDING_MODEL || 'text-embedding-ada-002'}`);
 
     const { message } = req.body;
 
@@ -68,10 +70,17 @@ module.exports = async (req, res) => {
     console.log(`Searching for: "${query}"`);
 
     // Generate embedding for the query
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set in environment variables');
+      return res.status(200).json({ documents: [] });
+    }
+
+    console.log('Calling OpenAI embeddings API...');
     const embeddingResponse = await openaiClient.embeddings.create({
       model: process.env.EMBEDDING_MODEL || 'text-embedding-ada-002',
       input: query,
     });
+    console.log('OpenAI embeddings API call successful');
 
     const queryEmbedding = embeddingResponse.data[0].embedding;
 
@@ -95,6 +104,11 @@ module.exports = async (req, res) => {
 
   } catch (error) {
     console.error('Knowledge base search error:', error);
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    if (error.cause) {
+      console.error('Error cause:', error.cause);
+    }
     
     // Vapi doesn't accept "error" field - return empty documents instead
     return res.status(200).json({ 
