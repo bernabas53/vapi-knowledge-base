@@ -31,12 +31,39 @@ function initializeClients() {
 }
 
 function getLatestUserMessage(message) {
-  if (!message || !message.messages) {
+  if (!message) {
     return '';
   }
   
-  const userMessages = message.messages.filter(msg => msg.role === 'user');
-  return userMessages[userMessages.length - 1]?.content || '';
+  // Handle different message formats
+  let messages = message.messages;
+  
+  // If messages is not an array, try to find it elsewhere
+  if (!Array.isArray(messages)) {
+    // Maybe messages are nested differently
+    if (message.conversation && Array.isArray(message.conversation)) {
+      messages = message.conversation;
+    } else if (message.history && Array.isArray(message.history)) {
+      messages = message.history;
+    } else {
+      return '';
+    }
+  }
+  
+  // Filter for user messages
+  const userMessages = messages.filter(msg => 
+    msg && (msg.role === 'user' || msg.type === 'user')
+  );
+  
+  // Get the latest user message content
+  const latestMessage = userMessages[userMessages.length - 1];
+  
+  if (!latestMessage) {
+    return '';
+  }
+  
+  // Try different content field names
+  return latestMessage.content || latestMessage.text || latestMessage.message || '';
 }
 
 // Vercel serverless function handler
@@ -56,19 +83,31 @@ module.exports = async (req, res) => {
     console.log(`OpenAI API key set: ${process.env.OPENAI_API_KEY ? 'Yes' : 'No'}`);
     console.log(`Embedding model: ${process.env.EMBEDDING_MODEL || 'text-embedding-ada-002'}`);
 
+    // Log full request body for debugging
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    
     const { message } = req.body;
 
     // Validate request type
     if (!message || message.type !== 'knowledge-base-request') {
       console.log('Invalid request type, returning empty documents');
+      console.log('Message object:', JSON.stringify(message, null, 2));
       return res.status(200).json({ documents: [] });
     }
+
+    // Log message structure
+    console.log('Message type:', message.type);
+    console.log('Messages array:', JSON.stringify(message.messages, null, 2));
+    console.log('Messages count:', message.messages?.length || 0);
 
     // Get the latest user query
     const query = getLatestUserMessage(message);
     
+    console.log('Extracted query:', query || '(empty)');
+    
     if (!query) {
       console.log('No query found, returning empty documents');
+      console.log('Available message keys:', Object.keys(message || {}));
       return res.status(200).json({ documents: [] });
     }
 
