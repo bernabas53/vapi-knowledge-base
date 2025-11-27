@@ -1,6 +1,6 @@
 # Vapi + Pinecone Knowledge Base Integration
 
-This project connects your Vapi assistant with a Pinecone vector database to create a custom knowledge base using your house listings data.
+A production-ready custom knowledge base server that connects your Vapi assistant with a Pinecone vector database. Perfect for creating intelligent assistants that can answer questions about your data using semantic search.
 
 ## Overview
 

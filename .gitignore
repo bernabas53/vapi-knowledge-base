@@ -11,6 +11,31 @@ node_modules/
 # Logs
 *.log
 npm-debug.log*
+call-logs-*.json
+logs_result*.json
+
+# Debug and temporary files
+*-old.js
+*-v2.js
+check-*.js
+diagnose-*.js
+fix-*.js
+verify-*.js
+force-*.sh
+setup-*.sh
+
+# Temporary documentation
+FIX_*.md
+URGENT_*.md
+FINAL_*.md
+MANUAL_*.md
+VERCEL_*.md
+*_CACHE*.md
+disable-*.md
+TROUBLESHOOTING.md
+TEST_RESULTS.md
+REMAINING_STEPS.md
+CHANGES_FOR_PRODUCTION.md
 
 # OS files
 .DS_Store
@@ -22,4 +47,5 @@ Thumbs.db
 *.swp
 *.swo
 
+# Vercel
 .vercel
