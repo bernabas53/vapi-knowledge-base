@@ -81,7 +81,7 @@ module.exports = async (req, res) => {
     console.log('📥 Knowledge base request received - Latest version');
     console.log(`Using Pinecone index: ${process.env.PINECONE_INDEX_NAME || 'default'}`);
     console.log(`OpenAI API key set: ${process.env.OPENAI_API_KEY ? 'Yes' : 'No'}`);
-    console.log(`Embedding model: ${process.env.EMBEDDING_MODEL || 'text-embedding-ada-002'}`);
+    console.log(`Embedding model: ${process.env.EMBEDDING_MODEL || 'text-embedding-3-large'}`);
 
     // Log full request body for debugging
     console.log('Request body:', JSON.stringify(req.body, null, 2));
@@ -121,7 +121,7 @@ module.exports = async (req, res) => {
 
     console.log('Calling OpenAI embeddings API...');
     // Trim model name to remove any whitespace/newlines
-    const modelName = (process.env.EMBEDDING_MODEL || 'text-embedding-ada-002').trim();
+    const modelName = (process.env.EMBEDDING_MODEL || 'text-embedding-3-large').trim();
     console.log(`Using model: "${modelName}"`);
     const embeddingResponse = await openaiClient.embeddings.create({
       model: modelName,

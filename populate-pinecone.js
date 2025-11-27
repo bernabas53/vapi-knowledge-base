@@ -14,7 +14,7 @@ require('dotenv').config();
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY;
 const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || 'vapi-knowledge-base';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || 'text-embedding-ada-002';
+const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL || 'text-embedding-3-large';
 
 if (!PINECONE_API_KEY || !OPENAI_API_KEY) {
   console.error('Error: PINECONE_API_KEY and OPENAI_API_KEY are required in .env file');
