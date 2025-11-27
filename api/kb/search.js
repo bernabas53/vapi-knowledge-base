@@ -85,6 +85,26 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // Check environment variables first
+    const envCheck = {
+      PINECONE_API_KEY: !!process.env.PINECONE_API_KEY,
+      PINECONE_INDEX_NAME: !!process.env.PINECONE_INDEX_NAME,
+      OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+      EMBEDDING_MODEL: process.env.EMBEDDING_MODEL || 'text-embedding-3-large',
+    };
+    
+    console.log('Environment variables check:', JSON.stringify(envCheck, null, 2));
+    
+    if (!envCheck.PINECONE_API_KEY) {
+      console.error('❌ PINECONE_API_KEY is missing!');
+      return res.status(200).json({ documents: [] });
+    }
+    
+    if (!envCheck.OPENAI_API_KEY) {
+      console.error('❌ OPENAI_API_KEY is missing!');
+      return res.status(200).json({ documents: [] });
+    }
+    
     // Initialize clients
     initializeClients();
 
