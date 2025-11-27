@@ -66,17 +66,45 @@ This will:
 
 ### 5. Deploy Your Server
 
-Deploy the `server.js` to a publicly accessible server. You can use:
+#### Option A: Deploy to Vercel (Recommended)
 
-- **Heroku**: `git push heroku main`
+1. **Install Vercel CLI:**
+   ```bash
+   npm i -g vercel
+   ```
+
+2. **Deploy:**
+   ```bash
+   vercel login
+   vercel link
+   vercel --prod
+   ```
+
+3. **Set Environment Variables in Vercel Dashboard:**
+   Go to: Vercel Dashboard → Settings → Environment Variables
+   
+   Add these variables for **Production**:
+   - `PINECONE_API_KEY` - Your Pinecone API key
+   - `PINECONE_INDEX_NAME` - Your Pinecone index name
+   - `OPENAI_API_KEY` - Your OpenAI API key
+   - `EMBEDDING_MODEL` - `text-embedding-3-large` (or your model)
+   - `TOP_K_RESULTS` - `5` (optional)
+   - `VAPI_WEBHOOK_SECRET` - Your webhook secret
+
+4. **Redeploy** after adding environment variables (wait 1-2 minutes or manually redeploy)
+
+5. **Get your deployment URL** (e.g., `https://your-project.vercel.app`)
+
+#### Option B: Deploy to Other Platforms
+
 - **Railway**: Connect your GitHub repo
 - **Render**: Deploy from GitHub
-- **Vercel/Netlify**: For serverless functions
+- **Heroku**: `git push heroku main`
 - **Your own server**: Use PM2 or similar
 
-Make sure your server URL is accessible at the path `/kb/search`.
-
-**Important**: Update `KB_SERVER_URL` in your `.env` file with your deployed server URL.
+**Important**: 
+- Make sure your server URL is accessible at the path `/api/kb/search` (for Vercel) or `/kb/search` (for Express)
+- Update `KB_SERVER_URL` in your `.env` file with your deployed server URL
 
 ### 6. Create Knowledge Base and Attach to Assistant
 
