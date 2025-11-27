@@ -7,26 +7,37 @@ let openaiClient;
 let index;
 
 function initializeClients() {
-  if (!pineconeClient) {
-    pineconeClient = new Pinecone({
-      apiKey: process.env.PINECONE_API_KEY?.trim(),
-    });
-  }
-  
-  if (!openaiClient) {
-    // Trim API key to remove any newlines or whitespace that might cause HTTP header errors
-    const apiKey = process.env.OPENAI_API_KEY?.trim();
-    if (!apiKey) {
-      console.error('OPENAI_API_KEY is not set or empty');
+  try {
+    if (!pineconeClient) {
+      const pineconeApiKey = process.env.PINECONE_API_KEY?.trim();
+      if (!pineconeApiKey) {
+        throw new Error('PINECONE_API_KEY is not set in environment variables');
+      }
+      pineconeClient = new Pinecone({
+        apiKey: pineconeApiKey,
+      });
     }
-    openaiClient = new OpenAI({
-      apiKey: apiKey,
-    });
-  }
-  
-  if (!index) {
-    const indexName = process.env.PINECONE_INDEX_NAME || 'vapi-knowledge-base';
-    index = pineconeClient.index(indexName);
+    
+    if (!openaiClient) {
+      const apiKey = process.env.OPENAI_API_KEY?.trim();
+      if (!apiKey) {
+        throw new Error('OPENAI_API_KEY is not set in environment variables');
+      }
+      openaiClient = new OpenAI({
+        apiKey: apiKey,
+      });
+    }
+    
+    if (!index) {
+      const indexName = process.env.PINECONE_INDEX_NAME || 'vapi-knowledge-base';
+      if (!indexName) {
+        throw new Error('PINECONE_INDEX_NAME is not set');
+      }
+      index = pineconeClient.index(indexName);
+    }
+  } catch (error) {
+    console.error('Error initializing clients:', error.message);
+    throw error;
   }
 }
 
