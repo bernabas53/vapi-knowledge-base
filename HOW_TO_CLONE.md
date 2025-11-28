@@ -104,15 +104,35 @@ You should see files like:
 - `api/` folder
 - etc.
 
-## Step 7: Install Dependencies
+## Step 7: Install Node.js (if not already installed)
+
+**IMPORTANT:** If you get the error `zsh: command not found: npm`, you need to install Node.js first!
+
+### Check if Node.js is installed:
+```bash
+node --version
+npm --version
+```
+
+If these commands show version numbers, you're good! Skip to Step 8.
+
+### If you get "command not found":
+
+1. **Go to:** https://nodejs.org/
+2. **Download the LTS version** (recommended)
+3. **Run the installer** and follow the wizard
+4. **Restart your Terminal**
+5. **Verify:** Run `node --version` and `npm --version` again
+
+For detailed instructions, see `INSTALL_NODEJS.md`
+
+## Step 8: Install Dependencies
+
+Once Node.js is installed:
 
 ```bash
 npm install
 ```
-
-**Note:** Make sure Node.js is installed first:
-- Check: `node --version` (should be v16 or higher)
-- Install: https://nodejs.org/
 
 ## Step 8: Set Up Environment Variables
 
