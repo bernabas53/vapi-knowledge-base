@@ -160,12 +160,33 @@ vercel --prod
 
 ### Step 9: Create Knowledge Base and Attach to Assistant
 
-1. Get your Vapi Assistant ID from Vapi dashboard
-2. Run:
+**Where to run this:** In your **local terminal/command line**, NOT in Vercel!
+
+1. **Open Terminal** (Mac) or **Command Prompt/PowerShell** (Windows)
+2. **Navigate to your project folder:**
+   ```bash
+   cd /path/to/vapi-knowledge-base
+   ```
+3. **Make sure your `.env` file has:**
+   - `VAPI_API_KEY` - Your Vapi API key
+   - `KB_SERVER_URL` - Your Vercel deployment URL (e.g., `https://your-project.vercel.app/api/kb/search`)
+   - `VAPI_WEBHOOK_SECRET` - Your webhook secret
+4. **Get your Vapi Assistant ID** from Vapi dashboard
+5. **Run the command:**
    ```bash
    npm run create-kb YOUR_ASSISTANT_ID
    ```
    Replace `YOUR_ASSISTANT_ID` with your actual assistant ID
+   
+   **Example:**
+   ```bash
+   npm run create-kb 41fcc8a6-4c6e-447d-b1a0-6e8a034d8f77
+   ```
+
+This script will:
+- Create a knowledge base in your Vapi account
+- Attach it to your assistant
+- Use the `KB_SERVER_URL` from your `.env` file
 
 ### Step 10: Test Everything
 
